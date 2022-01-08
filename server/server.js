@@ -1,4 +1,6 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
+app.use(express.static("static"));
 var http = require('http').createServer(app);
 const PORT = 8080;
 var io = require('socket.io')(http);
