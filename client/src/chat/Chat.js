@@ -3,7 +3,7 @@ import { ChannelList } from './ChannelList';
 import './chat.css';
 import { MessagesPanel } from './MessagesPanel';
 import socketClient from "socket.io-client";
-const SERVER = "http://localhost:8080";
+const SERVER = "/";
 export class Chat extends React.Component {
 
     state = {
@@ -52,7 +52,7 @@ export class Chat extends React.Component {
     }
 
     loadChannels = async () => {
-        fetch('http://localhost:8080/getChannels').then(async response => {
+        fetch("/getChannels").then(async response => {
             let data = await response.json();
             this.setState({ channels: data.channels });
         })
