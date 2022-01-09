@@ -42,7 +42,7 @@
   flex-direction: column;
   align-items: flex-start;
 }
-.chat-app .messages-panel .meesages-list {
+.chat-app .messages-panel .messages-list {
   align-self: stretch;
   height: 100%;
 }

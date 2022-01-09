@@ -22,7 +22,7 @@ export class MessagesPanel extends React.Component {
         }
         return (
             <div className='messages-panel'>
-                <div className="meesages-list">{list}</div>
+                <div className="messages-list">{list}</div>
                 {this.props.channel &&
                     <div className="messages-input">
                         <input type="text" onChange={this.handleInput} value={this.state.input_value} />
