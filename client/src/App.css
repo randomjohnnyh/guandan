@@ -1,34 +1,81 @@
-.App {
+.guandan-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.guandan-app .no-content-message {
+  color: #cccccc;
+  font-style: italic;
+  font-size: 20px;
   text-align: center;
+  margin: 20px;
 }
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.guandan-app .channel-list {
+  width: calc(20% - 12px);
+  border: 1px solid #e0e0e0;
+  margin: 10px;
+  margin-right: 0;
+  border-right: none;
+  height: calc(100% - 22px);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.guandan-app .channel-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px;
 }
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.guandan-app .channel-item div {
+  font-weight: bold;
+}
+.guandan-app .channel-item span {
+  font-size: 10px;
+}
+.guandan-app .channel-item:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+.guandan-app .messages-panel {
+  width: calc(80% - 12px);
+  border: 1px solid #e0e0e0;
+  margin: 10px;
+  margin-left: 0;
+  height: calc(100% - 22px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: flex-start;
+}
+.guandan-app .messages-panel .messages-list {
+  align-self: stretch;
+  height: 100%;
+}
+.guandan-app .messages-panel .messages-input {
+  width: 100%;
+  height: 40px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f0f0f0;
+  display: flex;
+}
+.guandan-app .messages-panel .messages-input input {
+  margin: auto;
+  height: 20px;
+  width: 100%;
+  margin-left: 15px;
+  border-radius: 15px;
+  border: 1px solid #e0e0e0;
+}
+.guandan-app .messages-panel .messages-input input:focus {
+  border-radius: 15px;
+  border: 2px solid #66a6ff;
+  outline: none;
+}
+.guandan-app .messages-panel .messages-input button {
+  width: 60px;
+  margin: auto 10px;
+  background-color: #0e62da;
   color: white;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 5px 13px;
 }
-.App-link {
-  color: #61dafb;
+.guandan-app .messages-panel .messages-input button:hover {
+  cursor: pointer;
+  background-color: #66a6ff;
 }
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
