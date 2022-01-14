@@ -2,7 +2,7 @@ import React from "react";
 
 export function History(props) {
     const { a } = props;
-    let desc = "Player " + a[0] + ": " + a[1];
+    let desc = "Player " + a[0] + ": " + (a[1] === 0 ? "pass" : a[1]);
     return (
         <div> {desc} </div>
     );

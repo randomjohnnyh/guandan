@@ -7,6 +7,7 @@ import {
     getInitialGameState,
     startGame,
     reduceEvent,
+    updateDisplayName,
     redactGameState,
     makeNewPlayer,
 } from "./reducer.js";
@@ -45,9 +46,10 @@ const start = () => {
 
 const issueUpdate = () => {
     for (const o of Object.values(games[0].observers)) {
+        const players = (o.cookie && games[0].cookies[o.cookie].players) || [];
         o.callback({
             type: "game_state",
-            data: redactGameState(games[0].state),
+            data: redactGameState(games[0].state, players),
         });
     }
 }
@@ -94,6 +96,11 @@ const processEvent = (observerId, event) => {
     issueUpdate();
 };
 
+const changeName = (observerId, player, displayName) => {
+    updateDisplayName(games[0].state, player, displayName);
+    issueUpdate();
+}
+
 io.on("connection", (socket) => { // socket object may be used to send specific messages to the new connected client
     console.log("new client connected");
     socket.emit("connection", null);
@@ -109,6 +116,10 @@ io.on("connection", (socket) => { // socket object may be used to send specific 
 
         socket.on("start_game", () => {
             start();
+        });
+
+        socket.on("change_name", ({ player, displayName }) => {
+            changeName(observerId, player, displayName);
         });
 
         socket.on("event", (event) => {

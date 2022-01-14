@@ -9,11 +9,13 @@ export function makeNewPlayer(gameState) {
         console.log(`Invalid move. Player cannot be added to a ${gameState.status} game.`);
         return;
     } 
-    gameState.numberPlayers++;
     const newPlayer = _.cloneDeep(initialPlayerState);
-    gameState.players[gameState.numberPlayers.toString()] = newPlayer;
+    newPlayer.displayName = `Player ${gameState.numberPlayers}`;
+    const res = gameState.numberPlayers.toString();
+    gameState.players[res] = newPlayer;
 
-    return gameState.numberPlayers.toString();
+    gameState.numberPlayers++;
+    return res;
 }
 
 export function startGame(gameState) {
@@ -32,7 +34,7 @@ export function startGame(gameState) {
     let shuffled_arr = _.shuffle(arr)
     for (var i = 0; i < NUM_PLAYERS; i++) {
         gameState.playerCards[i]
-            = shuffled_arr.slice(i * PLAYER_NUM_CARDS, (i+1) * PLAYER_NUM_CARDS);
+            = _.sortBy(shuffled_arr.slice(i * PLAYER_NUM_CARDS, (i+1) * PLAYER_NUM_CARDS));
         console.log(`player ${i} has cards ${gameState.playerCards[i]}`);
     }
 
@@ -40,26 +42,31 @@ export function startGame(gameState) {
 }
 
 export function reduceEvent(gameState, event) {
+    console.log(event);
     gameState.events.push(event);
     switch (event.type) {
-        case "doPlayCard":
-            doPlayCard(gameState, event);
+        case "doPlayCards":
+            doPlayCards(gameState, event);
             break;    
     }
     gameState.currentPlayer = (
-        (parseInt(gameState.currentPlayer) % NUM_PLAYERS) + 1
+        (parseInt(gameState.currentPlayer) + 1) % NUM_PLAYERS
     ).toString();
 }
 
-function doPlayCard(gameState, event) {
-    console.log(`player ${event.player} played card ${event.data.card}!`);
+function doPlayCards(gameState, event) {
+    console.log(`player ${event.player} played cards ${event.data.cards}!`);
     let cards = gameState.playerCards[parseInt(event.player)];
-    // remove played card from player hand
-    const index = cards.indexOf(event.data.card);
-    cards.splice(index, 1);
+
+    // remove played cards from player hand
+    gameState.playerCards[parseInt(event.player)] = cards.filter((c) => !event.data.cards.includes(c));
 
     // record history in game state
-    gameState.history.push([event.player, event.data.card]);
+    gameState.history.push([event.player, event.data.cards]);
+}
+
+export function updateDisplayName(gameState, player, displayName) {
+    gameState.players[player].displayName = displayName;
 }
 
 var initialPlayerState = {
@@ -69,7 +76,7 @@ var initialPlayerState = {
 
 var initialGameState = {
     numberPlayers: 0,
-    currentPlayer: "1",
+    currentPlayer: "0",
     status: "init", // "init", "inprogress", "ended"
     players: {}, // player number to Player object
     playerCards: [[], [], [], []], // player number to list of cards remaining in hand
@@ -84,7 +91,7 @@ export function getInitialGameState() {
     return _.cloneDeep(initialGameState);
 }
 
-export function redactGameState(gameState) {
+export function redactGameState(gameState, assignedPlayers) {
     const redacted = _.cloneDeep(gameState);
-    return gameState;
+    return redacted;
 }

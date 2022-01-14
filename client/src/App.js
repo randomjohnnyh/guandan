@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
-import { ChannelList } from './ChannelList';
 import './app.css';
-import { MessagesPanel } from './MessagesPanel';
 import {
     getPlayers,
 } from "./helpers";
+import { PlayerName } from "./Player";
 import { Cards } from "./Cards";
 import { HistoryList } from "./HistoryList";
 
@@ -69,30 +68,34 @@ function Game(props) {
             setNEvents(n);
         });
     });
-    const { socket, handleEvent, getGameState, getAssignedPlayer, getStatus } = s;
+    const { socket, getGameState, getAssignedPlayer, getStatus } = s;
     console.log(`in Game with status = ${getStatus()} for assigned player ${getAssignedPlayer()}`);
 
     const emitEvent = (type, data) => {
-        if (!getGameState()?.currentPlayer) {
+        if (getGameState()?.currentPlayer !== getAssignedPlayer()) {
             return;
         }
         socket.emit("event", {
             type,
-            // player: getGameState().currentPlayer,
-            player: getAssignedPlayer(),
+            player: getGameState().currentPlayer,
             data,
         });
     }
 
-    const playCard = (card) => {
-        console.log(`player ${getAssignedPlayer()} played card ${card}`);
-        emitEvent("doPlayCard", { card });
+    const playCards = (cards) => {
+        console.log(`player ${getAssignedPlayer()} played cards ${cards}`);
+        emitEvent("doPlayCards", { cards });
     }
 
     const startGame = () => {
         console.log('PRESSED START_GAME BUTTON!'); 
         socket.emit("start_game");
     }
+
+    const changeName = (player, displayName) => {
+        localStorage.setItem("playerName", displayName);
+        socket.emit("change_name", { player, displayName });
+    };
 
     const title =
         getStatus() === "inprogress" &&
@@ -101,23 +104,64 @@ function Game(props) {
         ) : (
             <h2>Guandan</h2>
         );
+
+    const startButtonStyle = {
+        marginTop: "30px",
+    };
+
+    let [selectedCards, setSelectedCards] = useState([]);
+
     if (getStatus() === "init") {
         return (
-            <button onClick={startGame}>
-                Start Game
-            </button>
+            <div style={{ textAlign: "center" }}>
+                <h3>Players</h3>
+                <div>
+                    {getPlayers(getGameState()).map((p, i) => {
+                        const isSelf = i.toString() === getAssignedPlayer();
+                        return (
+                            <h3>
+                                <PlayerName
+                                    number={i+1} 
+                                    player={p} 
+                                    editable={isSelf} 
+                                    changeName={changeName} 
+                                />
+                            </h3>
+                        ); 
+                    })}
+                </div>
+                <button style={startButtonStyle} onClick={startGame}>
+                   Start Game
+                </button>
+            </div>
         );
     } else if (getStatus() === "inprogress") {
         let playerCardsNow = getGameState().playerCards[getAssignedPlayer()];
+        console.log(getAssignedPlayer())
+        console.log(playerCardsNow)
         let history = getGameState().history;
+
+        const selectCard = (c) => {
+            console.log(`player ${getAssignedPlayer()} selected card ${c}`);
+            selectedCards.push(c);
+            setSelectedCards(selectedCards);
+        }
+        const clearCards = () => {
+            console.log(`player ${getAssignedPlayer()} cleard cards`);
+            selectedCards = [];
+            setSelectedCards([]);
+        }
+
         return (
             <div>
                 {title}
-                <Cards playerCards={playerCardsNow} onPlace={playCard}/>
+                <Cards playerCards={playerCardsNow} onPlace={selectCard}/>
+                <button onClick={() => {playCards(selectedCards); clearCards();}}>Play</button>
+                <button onClick={() => {playCards([0]); clearCards();}}>Pass</button>
                 <HistoryList history={history}/>
             </div>
         );
-    } else if (getStatus() == "disconnected") {
+    } else if (getStatus() === "disconnected") {
         return (
             <h1>Game diconnected</h1>
         );
