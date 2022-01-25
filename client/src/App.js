@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
-import './app.css';
+import "./app.css";
 import {
     getPlayers,
+    shallowEqual,
 } from "./helpers";
 import { PlayerName } from "./Player";
 import { Cards } from "./Cards";
 import { HistoryList } from "./HistoryList";
+import { WinnersList } from "./WinnersList";
 
 function getCookie() {
     let cookie = localStorage.getItem("guandanCookie");
@@ -83,8 +85,22 @@ function Game(props) {
     }
 
     const playCards = (cards) => {
-        console.log(`player ${getAssignedPlayer()} played cards ${cards}`);
-        emitEvent("doPlayCards", { cards });
+        console.log(`player ${getAssignedPlayer()} played cards:`);
+        for (var c of cards) {
+            console.log(`${c.Suit} ${c.Value}`);
+        }
+        
+        if (getGameState().isStartTrick && cards.length === 0) {
+            // cannot pass if starting trick
+        } else {
+            emitEvent("doPlayCards", { cards });
+
+            // check if player has emptied hand and won
+            if (getGameState().playerCards[getAssignedPlayer()].length === cards.length) {
+                console.log(`player ${getAssignedPlayer()} has won!!!`);
+                emitEvent("hasEmptyHand", {});
+            }
+        }
     }
 
     const startGame = () => {
@@ -107,6 +123,14 @@ function Game(props) {
 
     const startButtonStyle = {
         marginTop: "30px",
+    };
+    const playButtonStyle = {
+        marginTop: "60px",
+        marginLeft: "2px",
+    };
+    const passButtonStyle = {
+        marginTop: "60px",
+        marginLeft: "12px",
     };
 
     let [selectedCards, setSelectedCards] = useState([]);
@@ -137,28 +161,30 @@ function Game(props) {
         );
     } else if (getStatus() === "inprogress") {
         let playerCardsNow = getGameState().playerCards[getAssignedPlayer()];
-        console.log(getAssignedPlayer())
-        console.log(playerCardsNow)
         let history = getGameState().history;
+        let playersWon = getGameState().playersWon;
 
         const selectCard = (c) => {
-            console.log(`player ${getAssignedPlayer()} selected card ${c}`);
-            selectedCards.push(c);
+            console.log(`player ${getAssignedPlayer()} selected card ${c.Suit} ${c.Value}`);
+            selectedCards = selectedCards.filter(card => playerCardsNow.some(card2 => shallowEqual(card2, card)));
+            if (selectedCards.some(card => shallowEqual(card, c))) {
+                selectedCards = selectedCards.filter(card => !shallowEqual(card, c))
+            } else {
+                selectedCards.push(c);
+            }
             setSelectedCards(selectedCards);
-        }
-        const clearCards = () => {
-            console.log(`player ${getAssignedPlayer()} cleard cards`);
-            selectedCards = [];
-            setSelectedCards([]);
         }
 
         return (
             <div>
                 {title}
                 <Cards playerCards={playerCardsNow} onPlace={selectCard}/>
-                <button onClick={() => {playCards(selectedCards); clearCards();}}>Play</button>
-                <button onClick={() => {playCards([0]); clearCards();}}>Pass</button>
+                <button style={playButtonStyle} onClick={() => {playCards(selectedCards);}}>Play</button>
+                <button style={passButtonStyle} onClick={() => {playCards([]);}}>Pass</button>
+
+                <h3>Recent plays:</h3>
                 <HistoryList history={history}/>
+                <WinnersList playersWon={playersWon}/>
             </div>
         );
     } else if (getStatus() === "disconnected") {
@@ -177,25 +203,6 @@ function MakeGame() {
 }
 
 export class App extends React.Component {
-    state = {
-        channels: null,
-        socket: null,
-        channel: null
-    }
-    socket;
-    handleChannelSelect = id => {
-        let channel = this.state.channels.find(c => {
-            return c.id === id;
-        });
-        this.setState({ channel });
-        this.socket.emit("channel-join", id, ack => {
-        });
-    }
-
-    handleSendMessage = (channel_id, text) => {
-        this.socket.emit('send-message', { channel_id, text, senderName: this.socket.id, id: Date.now() });
-    }
-
     render() {
         const currentGame = new URL(window.location.href).searchParams.get("game");
         if (!currentGame) {
