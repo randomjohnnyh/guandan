@@ -84,7 +84,7 @@ export function Card(props) {
               backgroundPosition: "center",
               height: 100,
               width: 100,
-              filter: card.Value === 0 ? "grayscale(100%)" : "none",
+              filter: card.Value === 100 ? "grayscale(100%)" : "none",
             }}
           />
         </div>
@@ -113,7 +113,7 @@ export function Cards(props) {
         background: "#D6484D",
         paddingTop: 50,
         paddingLeft: 50,
-        paddingRight: 110,
+        paddingRight: 100,
         paddingBottom: 30,
       }}
     >
