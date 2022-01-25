@@ -79,3 +79,20 @@
   cursor: pointer;
   background-color: #66a6ff;
 }
+
+.absolute-centered {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.card-animation {
+  transition: all 0.3s;
+  margin-right: -60px;
+}
+
+.card-animation:hover {
+  transform: translateY(-10px);
+  margin-right: -50px;
+}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { playerNumberToColor } from "./helpers";
+import { Input } from './components';
 
 export function PlayerName(props) {
     const { editable, player, number, changeName} = props;
@@ -33,19 +34,19 @@ export function PlayerName(props) {
     };
 
     return editable ? (
-        <form>
-            <span style={playerColorStyle}>■</span> 
-            <input
+        <div className='py-2'>
+            <span className='mr-3' style={playerColorStyle}>■</span> 
+            <Input
                 type="text"   
                 value={pendingUpdate ? name : player.name}
                 onChange={handleNameChange}
                 autofocus="true"
             />
-        </form> 
+        </div> 
     ) : (
-        <>
+        <div className='py-2'>
             <span style={playerColorStyle}>■</span>{" "}
             <span style={playerNameStyle}>{player.name}</span>
-        </>
+        </div>
     ); 
 }

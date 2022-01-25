@@ -37,8 +37,6 @@ export function HistoryList(props) {
     )); 
     renderedHistory.reverse();
     return (
-        <div>
-            <div>{renderedHistory}</div>
-        </div>
+        <div className='font-mono'>{renderedHistory}</div>
     );
 }
